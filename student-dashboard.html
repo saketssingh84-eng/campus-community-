@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard — Campus Community</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <span>Campus</span>
+        <span>Community</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <ul class="nav-links">
+        <li><a href="index.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a></li>
+        <li><a href="announcement.html"><span class="nav-icon">📢</span><span class="nav-label">Announcements</span></a></li>
+        <li><a href="clubs.html"><span class="nav-icon">👥</span><span class="nav-label">Clubs</span></a></li>
+        <li><a href="events.html"><span class="nav-icon">📅</span><span class="nav-label">Events</span></a></li>
+        <li><a href="discussion.html"><span class="nav-icon">💬</span><span class="nav-label">Discussions</span></a></li>
+        <li><a href="resources.html"><span class="nav-icon">📂</span><span class="nav-label">Resources</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">My Space</div>
+      <ul class="nav-links">
+        <li><a href="reminders.html"><span class="nav-icon">📌</span><span class="nav-label">Reminders</span></a></li>
+        <li><a href="schedule.html"><span class="nav-icon">🗓️</span><span class="nav-label">Schedule</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">Account</div>
+      <ul class="nav-links">
+        <li><a href="#" id="logoutLink"><span class="nav-icon">🔐</span><span class="nav-label">Logout</span></a></li>
+        <li><a href="student-dashboard.html"><span class="nav-icon">🎓</span><span class="nav-label">My Dashboard</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">My Labels</div>
+      <ul class="nav-links" id="sidebarLabels"></ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="account.html" class="sidebar-account-btn">
+        <div class="account-avatar-sm" id="accountAvatar">S</div>
+        <span class="nav-label sidebar-account-label">My Account</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">&#9664; <span class="toggle-label">Collapse</span></button>
+    </div>
+  </aside>
+
+  <div class="dashboard-section">
+
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h1 id="welcomeHeading">👋 Welcome back!</h1>
+        <p id="welcomeSubtitle">Here's everything happening on your campus today.</p>
+      </div>
+      <div class="welcome-avatar">🎓</div>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Quick Access</h2>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:40px;">
+      <div class="dashboard-card">
+        <div class="card-icon">📢</div>
+        <h2>Announcements</h2>
+        <p>View the latest announcements from campus clubs, administration, and events. Stay in the loop.</p>
+        <a href="announcement.html" class="card-link">View Announcements →</a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-icon">👥</div>
+        <h2>Campus Clubs</h2>
+        <p>Explore all active clubs on campus and find the right one for you.</p>
+        <a href="clubs.html" class="card-link">Browse Clubs →</a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-icon">📅</div>
+        <h2>Upcoming Events</h2>
+        <p>Check the events calendar for upcoming workshops, competitions and campus activities.</p>
+        <a href="events.html" class="card-link">View Events →</a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-icon">📌</div>
+        <h2>My Reminders</h2>
+        <p>Manage personal reminders for deadlines, meetings and important events.</p>
+        <a href="reminders.html" class="card-link">Manage Reminders →</a>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2 class="section-title">Recent Announcements</h2>
+      <a href="announcement.html" class="section-link">View All →</a>
+    </div>
+
+    <div class="grid-3" id="recentAnnouncements">
+      <p>Loading announcements...</p>
+    </div>
+
+    <p id="announcementError" role="alert" class="login-error"></p>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 <span>Campus Community</span>. All rights reserved.</p>
+  </footer>
+
+  <script src="tech-mesh.js"></script>
+  <script src="api.js"></script>
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+  <script src="labels.js"></script>
+
+  <script>
+    const announcementsContainer =
+      document.getElementById('recentAnnouncements');
+
+    const announcementError =
+      document.getElementById('announcementError');
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[character]);
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Date unavailable';
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+
+      return date.toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    async function loadStudentDashboard() {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        window.location.replace('login.html');
+        return;
+      }
+
+      try {
+        const user = await API.getCurrentUser();
+
+        if (String(user.role || '').toLowerCase() !== 'student') {
+          window.location.replace(
+            String(user.role || '').toLowerCase() === 'admin'
+              ? 'admin-dashboard.html'
+              : 'login.html'
+          );
+          return;
+        }
+
+        document.getElementById('welcomeHeading').textContent =
+          `👋 Welcome back, ${user.name || 'Student'}!`;
+
+        document.getElementById('welcomeSubtitle').textContent =
+          `Here's everything happening on your campus today — ${
+            new Date().toLocaleDateString(undefined, {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })
+          }`;
+
+        document.getElementById('accountAvatar').textContent =
+          (user.name || 'S').trim().charAt(0).toUpperCase();
+
+        const announcements = await API.getAnnouncements();
+
+        const items = Array.isArray(announcements)
+          ? announcements
+          : announcements?.announcements || announcements?.data || [];
+
+        if (!items.length) {
+          announcementsContainer.innerHTML =
+            '<p>No announcements have been published yet.</p>';
+          return;
+        }
+
+        announcementsContainer.innerHTML = items
+          .slice(0, 3)
+          .map(item => `
+            <article class="announcement-card">
+              <span class="tag tag-general">Announcement</span>
+              <h3>${escapeHTML(item.title || 'Untitled announcement')}</h3>
+              <p class="card-meta">📅 ${escapeHTML(formatDate(item.created_at))}</p>
+              <p>${escapeHTML((item.content || '').slice(0, 180))}</p>
+              <a href="announcement.html" class="card-link">Read More →</a>
+            </article>
+          `)
+          .join('');
+
+      } catch (error) {
+        announcementError.textContent =
+          `Unable to load dashboard data: ${error.message}`;
+
+        announcementsContainer.innerHTML =
+          '<p>Announcements could not be loaded. Please refresh the page.</p>';
+      }
+    }
+
+    document.getElementById('logoutLink').addEventListener('click', event => {
+      event.preventDefault();
+      API.logout();
+    });
+
+    loadStudentDashboard();
+  </script>
+
+</body>
+</html>

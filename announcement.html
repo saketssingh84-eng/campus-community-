@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Announcements — Campus Community</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <span>Campus</span>
+        <span>Community</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <ul class="nav-links">
+        <li><a href="index.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a></li>
+        <li><a href="announcement.html"><span class="nav-icon">📢</span><span class="nav-label">Announcements</span></a></li>
+        <li><a href="clubs.html"><span class="nav-icon">👥</span><span class="nav-label">Clubs</span></a></li>
+        <li><a href="events.html"><span class="nav-icon">📅</span><span class="nav-label">Events</span></a></li>
+        <li><a href="discussion.html"><span class="nav-icon">💬</span><span class="nav-label">Discussions</span></a></li>
+        <li><a href="resources.html"><span class="nav-icon">📂</span><span class="nav-label">Resources</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">My Space</div>
+      <ul class="nav-links">
+        <li><a href="reminders.html"><span class="nav-icon">📌</span><span class="nav-label">Reminders</span></a></li>
+        <li><a href="schedule.html"><span class="nav-icon">🗓️</span><span class="nav-label">Schedule</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">Account</div>
+      <ul class="nav-links">
+        <li><a href="login.html"><span class="nav-icon">🔐</span><span class="nav-label">Login</span></a></li>
+        <li><a href="student-dashboard.html"><span class="nav-icon">🎓</span><span class="nav-label">Student Dashboard</span></a></li>
+        <li><a href="admin-dashboard.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin Panel</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">My Labels</div>
+      <ul class="nav-links" id="sidebarLabels"></ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="account.html" class="sidebar-account-btn">
+        <div class="account-avatar-sm">S</div>
+        <span class="nav-label sidebar-account-label">My Account</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        &#9664; <span class="toggle-label">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="page-wrapper">
+    <div class="page-header">
+      <h1 class="neon-title">📢 Announcements</h1>
+      <p>Stay updated with the latest news and notices from your campus.</p>
+    </div>
+
+    <div class="filter-bar" aria-label="Filter announcements">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="tech">💻 Technical</button>
+      <button class="filter-btn" data-filter="culture">🎭 Cultural</button>
+      <button class="filter-btn" data-filter="sports">⚽ Sports</button>
+      <button class="filter-btn" data-filter="general">📌 General</button>
+    </div>
+
+    <p id="announcementStatus" role="status" aria-live="polite">
+      Loading announcements...
+    </p>
+
+    <div id="announcementsList"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <span>Campus Community</span>. All rights reserved.</p>
+  </footer>
+
+  <script src="tech-mesh.js"></script>
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+  <script src="labels.js"></script>
+  <script src="api.js"></script>
+
+  <script>
+    const announcementsList = document.getElementById('announcementsList');
+    const announcementStatus = document.getElementById('announcementStatus');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+
+    let allAnnouncements = [];
+    let activeFilter = 'all';
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[character]);
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Date unavailable';
+
+      const date = new Date(value.replace(' ', 'T'));
+
+      if (Number.isNaN(date.getTime())) {
+        return 'Date unavailable';
+      }
+
+      return date.toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    // The current database schema has no category field.
+    // These keyword rules are temporary display classifications,
+    // not categories stored or verified in the database.
+    function classifyAnnouncement(announcement) {
+      const text =
+        `${announcement.title || ''} ${announcement.content || ''}`
+          .toLowerCase();
+
+      if (/\b(cricket|football|sports|tournament|match|athletics)\b/.test(text)) {
+        return { key: 'sports', label: 'Sports', css: 'tag-sports' };
+      }
+
+      if (/\b(cultural|culture|freshers|fest|festival|dance|music|volunteer)\b/.test(text)) {
+        return { key: 'culture', label: 'Cultural', css: 'tag-culture' };
+      }
+
+      if (/\b(technical|technology|coding|programming|hackathon|software|developer|workshop)\b/.test(text)) {
+        return { key: 'tech', label: 'Technical', css: 'tag-tech' };
+      }
+
+      return { key: 'general', label: 'General', css: 'tag-general' };
+    }
+
+    function renderAnnouncements() {
+      const filtered = allAnnouncements.filter(announcement => {
+        return activeFilter === 'all' ||
+          classifyAnnouncement(announcement).key === activeFilter;
+      });
+
+      if (filtered.length === 0) {
+        announcementsList.innerHTML =
+          '<p class="announcement-empty">No announcements found in this category.</p>';
+        return;
+      }
+
+      announcementsList.innerHTML = filtered.map(announcement => {
+        const category = classifyAnnouncement(announcement);
+
+        return `
+          <article class="announcement-list-card" data-tag="${category.key}">
+            <div class="alc-body">
+              <span class="tag ${category.css}">
+                ${category.label}
+              </span>
+              <h3>${escapeHTML(announcement.title || 'Untitled announcement')}</h3>
+              <div class="meta">
+                📅 ${escapeHTML(formatDate(announcement.created_at))}
+                &nbsp;|&nbsp; 👤 Campus Community
+              </div>
+              <p>${escapeHTML(announcement.content || '')}</p>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+
+        filterButtons.forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+
+        renderAnnouncements();
+      });
+    });
+
+    async function loadAnnouncements() {
+      announcementStatus.textContent = 'Loading announcements...';
+      announcementsList.replaceChildren();
+
+      try {
+        const response = await API.getAnnouncements();
+
+        allAnnouncements = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.announcements)
+            ? response.announcements
+            : Array.isArray(response?.data)
+              ? response.data
+              : [];
+
+        announcementStatus.textContent =
+          `${allAnnouncements.length} announcement(s) found`;
+
+        renderAnnouncements();
+      } catch (error) {
+        announcementStatus.textContent =
+          `Could not load announcements: ${error.message}`;
+
+        announcementsList.innerHTML =
+          '<p>Please check that the backend is running and refresh this page.</p>';
+      }
+    }
+
+    loadAnnouncements();
+  </script>
+
+</body>
+</html>

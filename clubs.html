@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clubs — Campus Community</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <span>Campus</span>
+        <span>Community</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <ul class="nav-links">
+        <li><a href="index.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a></li>
+        <li><a href="announcement.html"><span class="nav-icon">📢</span><span class="nav-label">Announcements</span></a></li>
+        <li><a href="clubs.html"><span class="nav-icon">👥</span><span class="nav-label">Clubs</span></a></li>
+        <li><a href="events.html"><span class="nav-icon">📅</span><span class="nav-label">Events</span></a></li>
+        <li><a href="discussion.html"><span class="nav-icon">💬</span><span class="nav-label">Discussions</span></a></li>
+        <li><a href="resources.html"><span class="nav-icon">📂</span><span class="nav-label">Resources</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">My Space</div>
+      <ul class="nav-links">
+        <li><a href="reminders.html"><span class="nav-icon">📌</span><span class="nav-label">Reminders</span></a></li>
+        <li><a href="schedule.html"><span class="nav-icon">🗓️</span><span class="nav-label">Schedule</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">Account</div>
+      <ul class="nav-links">
+        <li><a href="login.html"><span class="nav-icon">🔐</span><span class="nav-label">Login</span></a></li>
+        <li><a href="student-dashboard.html"><span class="nav-icon">🎓</span><span class="nav-label">Student Dashboard</span></a></li>
+        <li><a href="admin-dashboard.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin Panel</span></a></li>
+      </ul>
+
+      <div class="nav-section-label" style="margin-top:12px;">My Labels</div>
+      <ul class="nav-links" id="sidebarLabels"></ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="account.html" class="sidebar-account-btn">
+        <div class="account-avatar-sm">S</div>
+        <span class="nav-label sidebar-account-label">My Account</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        &#9664; <span class="toggle-label">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="page-wrapper">
+    <div class="page-header">
+      <h1 class="neon-title">👥 Campus Clubs</h1>
+      <p>Find your community. Join a club and be part of something bigger.</p>
+    </div>
+
+    <p id="clubsStatus" role="status" aria-live="polite">
+      Loading clubs...
+    </p>
+
+    <div class="grid-3" id="clubsGrid"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 <span>Campus Community</span>. All rights reserved.</p>
+  </footer>
+
+  <script src="tech-mesh.js"></script>
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+  <script src="labels.js"></script>
+  <script src="api.js"></script>
+
+  <script>
+    const clubsGrid = document.getElementById('clubsGrid');
+    const clubsStatus = document.getElementById('clubsStatus');
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[character]);
+    }
+
+    // Choose a decorative icon from the club name.
+    // This does not represent a category stored in the database.
+    function getClubIcon(name) {
+      const text = String(name || '').toLowerCase();
+
+      if (/tech|coding|computer|programming|developer/.test(text)) return '💻';
+      if (/cultur|music|dance|drama|art/.test(text)) return '🎭';
+      if (/sport|cricket|football|basketball|athletic/.test(text)) return '⚽';
+      if (/photo|camera|film/.test(text)) return '📸';
+      if (/liter|book|writing|debate/.test(text)) return '📚';
+      if (/eco|environment|nature|green/.test(text)) return '🌱';
+
+      return '👥';
+    }
+
+    function renderClubs(clubs) {
+      if (clubs.length === 0) {
+        clubsGrid.innerHTML =
+          '<p>No clubs have been added yet.</p>';
+        return;
+      }
+
+      clubsGrid.innerHTML = clubs.map(club => `
+        <article class="club-card">
+          <span class="club-icon">${getClubIcon(club.name)}</span>
+          <span class="tag tag-general">Campus Club</span>
+          <h3>${escapeHTML(club.name || 'Unnamed Club')}</h3>
+          <p>${escapeHTML(club.description || 'No description has been provided yet.')}</p>
+        </article>
+      `).join('');
+    }
+
+    async function loadClubs() {
+      clubsStatus.textContent = 'Loading clubs...';
+      clubsGrid.replaceChildren();
+
+      try {
+        const response = await API.getClubs();
+
+        const clubs = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.clubs)
+            ? response.clubs
+            : Array.isArray(response?.data)
+              ? response.data
+              : [];
+
+        clubsStatus.textContent = `${clubs.length} club(s) found`;
+
+        renderClubs(clubs);
+      } catch (error) {
+        clubsStatus.textContent =
+          `Could not load clubs: ${error.message}`;
+
+        clubsGrid.innerHTML =
+          '<p>Please check that the backend is running and refresh this page.</p>';
+      }
+    }
+
+    loadClubs();
+  </script>
+
+</body>
+</html>

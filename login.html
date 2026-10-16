@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Campus Community</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="margin-left:0;">
+
+  <div class="login-page">
+    <div class="login-box">
+
+      <div class="login-logo">
+        <div class="logo-icon">🎓</div>
+        <h1>Campus Community</h1>
+        <p>Sign in to your account</p>
+      </div>
+
+      <div class="role-tabs">
+        <button type="button" class="role-tab active"
+          id="tabStudent" onclick="selectRole('student')">
+          🎓 Student
+        </button>
+
+        <button type="button" class="role-tab"
+          id="tabAdmin" onclick="selectRole('admin')">
+          ⚙️ Admin
+        </button>
+      </div>
+
+      <form id="loginForm">
+
+        <div class="form-group">
+          <label for="username">Email</label>
+          <input
+            type="email"
+            id="username"
+            placeholder="Enter your registered email"
+            autocomplete="username"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          Login as Student
+        </button>
+
+      </form>
+
+      <p class="login-error" id="loginError" role="alert"></p>
+
+      <div class="login-footer" style="margin-top:16px;">
+        <a href="index.html">← Back to Home</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="tech-mesh.js"></script>
+  <script src="api.js"></script>
+  <script>
+    let selectedRole = 'student';
+
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+    const emailInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+
+    function selectRole(role) {
+      selectedRole = role;
+
+      document.getElementById('tabStudent')
+        .classList.toggle('active', role === 'student');
+
+      document.getElementById('tabAdmin')
+        .classList.toggle('active', role === 'admin');
+
+      loginButton.textContent =
+        role === 'admin' ? 'Login as Admin' : 'Login as Student';
+
+      loginError.textContent = '';
+    }
+
+    loginForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      loginError.textContent = '';
+
+      loginButton.disabled = true;
+      loginButton.textContent = 'Signing in...';
+
+      try {
+        const result = await API.login(email, password);
+        const user = result.user;
+
+        if (!result.token || !user) {
+          throw new Error('The server returned an incomplete login response.');
+        }
+
+        // The database role is authoritative.
+        const actualRole = String(user.role || '').toLowerCase();
+
+        if (actualRole !== 'admin' && actualRole !== 'student') {
+          API.logout();
+          return;
+        }
+
+        // Prevent a selected tab from changing the user's real permissions.
+        if (selectedRole !== actualRole) {
+          API.logout();
+          return;
+        }
+
+        // Compatibility with existing pages that use campus_* keys.
+        localStorage.setItem('campus_role', actualRole);
+        localStorage.setItem('campus_name', user.name || '');
+        localStorage.setItem('role', actualRole);
+        localStorage.setItem('userName', user.name || '');
+
+        window.location.href = actualRole === 'admin'
+          ? 'admin-dashboard.html'
+          : 'student-dashboard.html';
+
+      } catch (error) {
+        loginError.textContent =
+          error.message || 'Login failed. Please try again.';
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent =
+          selectedRole === 'admin' ? 'Login as Admin' : 'Login as Student';
+      }
+    });
+
+    // Clear stale demo sessions; real sessions use a JWT.
+    localStorage.removeItem('campus_role');
+    localStorage.removeItem('campus_name');
+
+    // If a JWT already exists, validate it with the backend.
+    if (API.isLoggedIn()) {
+      API.getCurrentUser()
+        .then(user => {
+          const role = String(user.role || '').toLowerCase();
+
+          if (role === 'admin' || role === 'student') {
+            window.location.href = role === 'admin'
+              ? 'admin-dashboard.html'
+              : 'student-dashboard.html';
+          }
+        })
+        .catch(() => {
+          // The API helper handles invalid or expired tokens.
+        });
+    }
+  </script>
+
+</body>
+</html>

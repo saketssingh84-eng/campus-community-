@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Community</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ==================== LOGIN GUARD SCRIPT ====================
+       Checks if the user is logged in before allowing access to this page.
+       Reads 'campus_role' from localStorage (set during login).
+       TO CHANGE: Update the redirect target by changing 'login.html'.
+       TO REMOVE: Delete this entire <script> block (lines below to </script>). -->
+  <!-- Redirect to login if not logged in -->
+  <script>
+    if (!localStorage.getItem('campus_role')) {
+      window.location.replace('login.html');
+    }
+  </script>
+</head>
+<body>
+
+  <!-- ==================== SIDEBAR ====================
+       The collapsible left navigation sidebar used across all pages.
+       Contains: logo/brand, main nav links, My Space links, Account links, dynamic label list.
+       TO CHANGE: Add or remove <li> items inside any <ul class="nav-links"> block.
+       TO REMOVE: Delete the entire <aside class="sidebar"> ... </aside> block. -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <span>Campus</span>
+        <span>Community</span>
+      </div>
+    </div>
+
+
+    <div class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+    <ul class="nav-links">
+      <li><a href="index.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a></li>
+      <li><a href="announcement.html"><span class="nav-icon">📢</span><span class="nav-label">Announcements</span></a></li>
+      <li><a href="clubs.html"><span class="nav-icon">👥</span><span class="nav-label">Clubs</span></a></li>
+      <li><a href="events.html"><span class="nav-icon">📅</span><span class="nav-label">Events</span></a></li>
+      <li><a href="discussion.html"><span class="nav-icon">💬</span><span class="nav-label">Discussions</span></a></li>
+      <li><a href="resources.html"><span class="nav-icon">📂</span><span class="nav-label">Resources</span></a></li>
+    </ul>
+
+    <div class="nav-section-label" style="margin-top:12px;">My Space</div>
+    <ul class="nav-links">
+      <li><a href="reminders.html"><span class="nav-icon">📌</span><span class="nav-label">Reminders</span></a></li>
+      <li><a href="schedule.html"><span class="nav-icon">🗓️</span><span class="nav-label">Schedule</span></a></li>
+    </ul>
+
+    <div class="nav-section-label" style="margin-top:12px;">Account</div>
+    <ul class="nav-links">
+      <li><a href="login.html"><span class="nav-icon">🔐</span><span class="nav-label">Login</span></a></li>
+      <li><a href="student-dashboard.html"><span class="nav-icon">🎓</span><span class="nav-label">Student Dashboard</span></a></li>
+      <li><a href="admin-dashboard.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin Panel</span></a></li>
+    </ul>
+  
+      <div class="nav-section-label" style="margin-top:12px;">My Labels</div>
+      <!-- BACKEND CONNECTION POINT: Sidebar labels are injected dynamically by labels.js from localStorage. -->
+      <ul class="nav-links" id="sidebarLabels"></ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="account.html" class="sidebar-account-btn">
+        <div class="account-avatar-sm">S</div>
+        <span class="nav-label sidebar-account-label">My Account</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">&#9664; <span class="toggle-label">Collapse</span></button>
+    </div>
+  </aside>
+
+  <!-- ==================== HERO SECTION ====================
+       Full-width banner shown at the top of the home page.
+       Contains: badge text, main heading, subtitle, and two CTA buttons.
+       TO CHANGE the hero heading: find the <h1> tag inside .hero-content and edit the text.
+       TO CHANGE the CTA buttons: update the href and text on .btn-primary and .btn-secondary.
+       TO REMOVE: Delete the entire <section class="hero"> ... </section> block. -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">⚡ One Campus • One Community</div>
+      <h1>Your Campus.<br>Your Community.</h1>
+      <p>Announcements, clubs, events and everything happening around your campus — all in one place.</p>
+      <div class="hero-actions">
+        <a href="announcement.html" class="btn-primary">📢 Explore Announcements</a>
+        <a href="clubs.html" class="btn-secondary">👥 Browse Clubs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== STATS BAR ====================
+       Animated statistics bar displayed below the hero section.
+       Numbers count up from 0 to the data-count value on page load (handled by main.js).
+       MOCK DATA: This is placeholder data. Will be replaced by backend API response.
+       TO CHANGE stats numbers: find data-count attributes on .stat-number elements.
+       TO REMOVE: Delete the entire <div class="stats-bar"> ... </div> block. -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-number" data-count="12" data-suffix="+">0+</span>
+      <span class="stat-label">Active Clubs</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number" data-count="50" data-suffix="+">0+</span>
+      <span class="stat-label">Announcements</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number" data-count="20" data-suffix="+">0+</span>
+      <span class="stat-label">Upcoming Events</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number" data-count="500" data-suffix="+">0+</span>
+      <span class="stat-label">Students</span>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN CONTENT AREA ====================
+       Wrapper for all page sections below the hero and stats bar.
+       Contains: Latest Announcements, Campus Clubs preview, Upcoming Events preview.
+       TO REMOVE: Delete the entire <div class="page-wrapper"> ... </div> block. -->
+  <div class="page-wrapper">
+
+    <!-- ==================== LATEST ANNOUNCEMENTS SECTION ====================
+         Shows the 3 most recent announcements as cards in a grid.
+         MOCK DATA: This is placeholder data. Will be replaced by backend API response.
+         BACKEND CONNECTION POINT: Fetch real announcements from API here when backend is ready.
+         TO RENAME heading: Change the text inside the <h2> tag here.
+         TO ADD a new announcement card: copy one .announcement-card block and paste it into the grid.
+         TO REMOVE THIS SECTION: Delete from this comment to the matching closing </div> after the grid. -->
+    <div class="section-header">
+      <h2 class="section-title">Latest Announcements</h2>
+      <a href="announcement.html" class="section-link">View All →</a>
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 56px;">
+
+      <div class="announcement-card">
+        <span class="tag tag-tech">Technical</span>
+        <h3>Tech Club Recruitment 2026</h3>
+        <p class="card-meta">📅 25 Sep 2026 &nbsp;|&nbsp; 💼 Technical Club</p>
+        <p>Applications are now open for new members of the Tech Club. Join us for hackathons, coding events and more!</p>
+        <a href="announcement.html" class="card-link">Read More →</a>
+      </div>
+
+      <div class="announcement-card">
+        <span class="tag tag-culture">Cultural</span>
+        <h3>Freshers Welcome Event 2026</h3>
+        <p class="card-meta">📅 28 Sep 2026 &nbsp;|&nbsp; 🎭 Cultural Club</p>
+        <p>A grand welcome event for all new students with performances, games, and food. Don't miss it!</p>
+        <a href="announcement.html" class="card-link">Read More →</a>
+      </div>
+
+      <div class="announcement-card">
+        <span class="tag tag-tech">Technical</span>
+        <h3>Campus Hackathon — Register Now!</h3>
+        <p class="card-meta">📅 30 Sep 2026 &nbsp;|&nbsp; 💼 Technical Club</p>
+        <p>A 24-hour campus hackathon open to all. Form your team and build something amazing. Prizes worth ₹50,000!</p>
+        <a href="announcement.html" class="card-link">Read More →</a>
+      </div>
+
+    </div>
+
+    <!-- ==================== CAMPUS CLUBS SECTION ====================
+         Shows a preview of 3 campus clubs in a card grid.
+         MOCK DATA: This is placeholder data. Will be replaced by backend API response.
+         BACKEND CONNECTION POINT: Fetch real clubs from API here when backend is ready.
+         TO RENAME heading: Change the text inside the <h2> tag here.
+         TO ADD a club: copy one .club-card block and paste it into the grid.
+         TO REMOVE THIS SECTION: Delete from this comment to the matching closing </div> after the grid. -->
+    <div class="section-header">
+      <h2 class="section-title">Campus Clubs</h2>
+      <a href="clubs.html" class="section-link">View All →</a>
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 56px;">
+
+      <div class="club-card">
+        <span class="club-icon">💻</span>
+        <h3>Technical Club</h3>
+        <p>Coding, hackathons, projects and tech competitions. Build. Innovate. Win.</p>
+        <span class="club-members">👤 120 members</span>
+        <a href="clubs.html" class="card-link">View Club →</a>
+      </div>
+
+      <div class="club-card">
+        <span class="club-icon">🎭</span>
+        <h3>Cultural Club</h3>
+        <p>Music, dance, drama and cultural festivals. Express your creativity on stage.</p>
+        <span class="club-members">👤 95 members</span>
+        <a href="clubs.html" class="card-link">View Club →</a>
+      </div>
+
+      <div class="club-card">
+        <span class="club-icon">⚽</span>
+        <h3>Sports Club</h3>
+        <p>Cricket, football, athletics and inter-college tournaments. Stay active.</p>
+        <span class="club-members">👤 80 members</span>
+        <a href="clubs.html" class="card-link">View Club →</a>
+      </div>
+
+    </div>
+
+    <!-- ==================== UPCOMING EVENTS PREVIEW ====================
+         Shows 3 upcoming events in a card grid with date bands.
+         MOCK DATA: This is placeholder data. Will be replaced by backend API response.
+         BACKEND CONNECTION POINT: Fetch real events from API here when backend is ready.
+         TO CHANGE event date: edit the .date-day and .date-info spans inside .event-date-band.
+         TO ADD new event: copy one .event-card block and paste it.
+         TO REMOVE THIS SECTION: Delete from this comment to the matching closing </div> after the grid. -->
+    <div class="section-header">
+      <h2 class="section-title">Upcoming Events</h2>
+      <a href="events.html" class="section-link">View All →</a>
+    </div>
+
+    <div class="grid-3">
+
+      <div class="event-card">
+        <div class="event-date-band">
+          <div class="date-day">30</div>
+          <div class="date-info"><span>September</span><span>2026</span></div>
+        </div>
+        <div class="event-body">
+          <span class="tag tag-tech">Technical</span>
+          <h3>Campus Hackathon</h3>
+          <p>24-hour hackathon. Build fast. Win big.</p>
+          <div class="event-detail">📍 CS Block, Lab 3</div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-date-band">
+          <div class="date-day">5</div>
+          <div class="date-info"><span>October</span><span>2026</span></div>
+        </div>
+        <div class="event-body">
+          <span class="tag tag-sports">Sports</span>
+          <h3>Cricket Tournament</h3>
+          <p>Inter-college cricket. Cheer for our team!</p>
+          <div class="event-detail">📍 College Ground</div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-date-band">
+          <div class="date-day">10</div>
+          <div class="date-info"><span>October</span><span>2026</span></div>
+        </div>
+        <div class="event-body">
+          <span class="tag tag-culture">Cultural</span>
+          <h3>Annual Cultural Fest</h3>
+          <p>Music, dance and drama. The biggest event of the year.</p>
+          <div class="event-detail">📍 Main Auditorium</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==================== FOOTER ====================
+       Page footer displayed at the bottom of every page.
+       TO CHANGE: Edit the text inside the <p> tags.
+       TO REMOVE: Delete the entire <footer> ... </footer> block. -->
+  <footer>
+    <p>&copy; 2026 <span>Campus Community</span>. All rights reserved.</p>
+    <p>Made with ❤️ for our campus.</p>
+  </footer>
+
+  <script src="tech-mesh.js"></script>
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+  <script src="labels.js"></script>
+  <script src="api.js"></script>
+</body>
+</html>

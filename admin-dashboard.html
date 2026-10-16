@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Campus Community</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==================== ADMIN SIDEBAR ====================
+       Left navigation panel, visible on all admin pages.
+       Contains two nav groups: Main Menu (student-facing pages)
+       and Admin (admin-only Manage pages for announcements,
+       events, clubs, and users).
+       ADMIN ONLY: The "Admin" nav-section links are only
+       meaningful to logged-in admin users (controlled by auth.js).
+       TO ADD a nav link: copy a <li> inside the relevant <ul class="nav-links">.
+       TO REMOVE the Admin section: delete the nav-section-label "Admin" div
+         and its following <ul class="nav-links"> block. -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <span>Campus</span>
+        <span>Community</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+    <div class="nav-section-label">Main Menu</div>
+    <ul class="nav-links">
+      <li><a href="index.html"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></a></li>
+      <li><a href="announcement.html"><span class="nav-icon">📢</span><span class="nav-label">Announcements</span></a></li>
+      <li><a href="clubs.html"><span class="nav-icon">👥</span><span class="nav-label">Clubs</span></a></li>
+      <li><a href="events.html"><span class="nav-icon">📅</span><span class="nav-label">Events</span></a></li>
+      <li><a href="discussion.html"><span class="nav-icon">💬</span><span class="nav-label">Discussions</span></a></li>
+      <li><a href="resources.html"><span class="nav-icon">📂</span><span class="nav-label">Resources</span></a></li>
+    </ul>
+    <!-- ADMIN ONLY: These nav links lead to admin management pages.
+         TO ADD a manage link: copy a <li> below. -->
+    <div class="nav-section-label" style="margin-top:12px;">Admin</div>
+    <ul class="nav-links">
+      <li><a href="admin-announcements.html"><span class="nav-icon">📢</span><span class="nav-label">Manage Announcements</span></a></li>
+      <li><a href="admin-events.html"><span class="nav-icon">📅</span><span class="nav-label">Manage Events</span></a></li>
+      <li><a href="admin-clubs.html"><span class="nav-icon">👥</span><span class="nav-label">Manage Clubs</span></a></li>
+      <li><a href="admin-users.html"><span class="nav-icon">👤</span><span class="nav-label">Manage Users</span></a></li>
+    </ul>
+    <div class="nav-section-label" style="margin-top:12px;">Account</div>
+    <ul class="nav-links">
+      <li><a href="login.html"><span class="nav-icon">🔐</span><span class="nav-label">Logout</span></a></li>
+      <li><a href="admin-dashboard.html"><span class="nav-icon">⚙️</span><span class="nav-label">Admin Panel</span></a></li>
+    </ul>
+  
+      <!-- My Labels section: auto-populated by labels.js renderSidebarLabels().
+           TO RENAME 'My Labels': go to labels.js, find renderSidebarLabels(), change the heading text.
+           TO REMOVE: delete this div and the <ul> below, and remove labels.js from all HTML files. -->
+      <div class="nav-section-label" style="margin-top:12px;">My Labels</div>
+      <ul class="nav-links" id="sidebarLabels"></ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="account.html" class="sidebar-account-btn">
+        <div class="account-avatar-sm">S</div>
+        <span class="nav-label sidebar-account-label">My Account</span>
+      </a>
+      <button class="sidebar-toggle" id="sidebarToggle">&#9664; <span class="toggle-label">Collapse</span></button>
+    </div>
+  </aside>
+
+  <!-- ==================== CONTENT AREA ====================
+       Main page body rendered to the right of the sidebar. -->
+  <div class="dashboard-section">
+
+    <!-- ==================== WELCOME BANNER ====================
+         Decorative header strip at the top of the admin panel.
+         TO CHANGE the title or subtitle: edit the <h1> and <p> text. -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h1>⚙️ Admin Panel</h1>
+        <p>Manage announcements, clubs, events and users from here.</p>
+      </div>
+      <div class="welcome-avatar" style="background: linear-gradient(135deg, var(--purple), #6d28d9); box-shadow: var(--purple-glow);">⚙️</div>
+    </div>
+
+    <!-- ==================== QUICK STATS ROW ====================
+         Four summary stat cards showing live counts for
+         Announcements, Clubs, Events, and Students.
+         MOCK DATA: Numbers (7, 6, 6, 500+) are hardcoded placeholders.
+           Replace with backend API data later.
+         TO CHANGE stat numbers: find the font-size:24px div inside
+           each stat card and change the number.
+         TO ADD a stat card: copy one .dashboard-card block below. -->
+    <div class="grid-4" style="margin-bottom: 40px;">
+
+      <!-- MOCK DATA: 7 announcements placeholder -->
+      <div class="dashboard-card" style="border-left: 2px solid var(--cyan); flex-direction:row; align-items:center; gap:16px;">
+        <div style="font-size:32px;">📢</div>
+        <div>
+          <div style="font-size:24px; font-weight:800; color:var(--cyan);">7</div>
+          <div style="font-size:13px; color:var(--text-secondary);">Announcements</div>
+        </div>
+      </div>
+
+      <!-- MOCK DATA: 6 clubs placeholder -->
+      <div class="dashboard-card" style="border-left: 2px solid var(--purple); flex-direction:row; align-items:center; gap:16px;">
+        <div style="font-size:32px;">👥</div>
+        <div>
+          <div style="font-size:24px; font-weight:800; color:var(--purple);">6</div>
+          <div style="font-size:13px; color:var(--text-secondary);">Clubs</div>
+        </div>
+      </div>
+
+      <!-- MOCK DATA: 6 events placeholder -->
+      <div class="dashboard-card" style="border-left: 2px solid var(--green); flex-direction:row; align-items:center; gap:16px;">
+        <div style="font-size:32px;">📅</div>
+        <div>
+          <div style="font-size:24px; font-weight:800; color:var(--green);">6</div>
+          <div style="font-size:13px; color:var(--text-secondary);">Events</div>
+        </div>
+      </div>
+
+      <!-- MOCK DATA: 500+ students placeholder -->
+      <div class="dashboard-card" style="border-left: 2px solid var(--orange); flex-direction:row; align-items:center; gap:16px;">
+        <div style="font-size:32px;">👤</div>
+        <div>
+          <div style="font-size:24px; font-weight:800; color:var(--orange);">500+</div>
+          <div style="font-size:13px; color:var(--text-secondary);">Students</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== MANAGE ACTION CARDS GRID ====================
+         Four large clickable cards, each linking to an admin management page.
+         Laid out in a 2-column grid (.grid-2).
+         TO ADD a manage card: copy one .dashboard-card block and update
+           the icon, title, description, and href on the <a class="card-link">. -->
+    <div class="section-header">
+      <h2 class="section-title">Manage</h2>
+    </div>
+
+    <div class="grid-2">
+
+      <div class="dashboard-card">
+        <div class="card-icon">📢</div>
+        <h2>Manage Announcements</h2>
+        <p>Post new announcements, edit existing ones, or remove outdated notices for students to see.</p>
+        <a href="#" class="card-link">Go to Announcements →</a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-icon">👥</div>
+        <h2>Manage Clubs</h2>
+        <p>Add new clubs, update club information, and manage club memberships and activities.</p>
+        <a href="#" class="card-link">Go to Clubs →</a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-icon">📅</div>
+        <h2>Manage Events</h2>
+        <p>Create and manage campus events, workshops, and scheduled activities throughout the year.</p>
+        <a href="#" class="card-link">Go to Events →</a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-icon">👤</div>
+        <h2>Manage Users</h2>
+        <p>View registered students, update roles, approve registrations and manage user accounts.</p>
+        <a href="#" class="card-link">Go to Users →</a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer>
+    <p>&copy; 2026 <span>Campus Community</span>. All rights reserved.</p>
+  </footer>
+
+  <script src="tech-mesh.js"></script>
+  <script src="main.js"></script>
+  <script src="auth.js"></script>
+  <script src="labels.js"></script>
+  <script src="api.js"></script>
+</body>
+</html>
