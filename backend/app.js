@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 
 const express = require('express');
@@ -6,7 +5,25 @@ const cors = require('cors');
 
 const app = express();
 
-// Import all route files
+// Allowed frontend origins
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+].filter(Boolean);
+
+// Configure CORS
+app.use(cors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Parse incoming request bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Import route files
 const testRoutes = require('./routes/testRoutes');
 const authRoutes = require('./routes/authRoutes');
 const clubRoutes = require('./routes/clubRoutes');
@@ -23,26 +40,6 @@ const searchRoutes = require('./routes/searchRoutes');
 // Import error-handling middleware
 const notFoundMiddleware = require('./middleware/notFoundMiddleware');
 const errorMiddleware = require('./middleware/errorMiddleware');
-
-// Create Express application
-const appInstance = app;
-
-// Configure CORS
-
- // Configure CORS
-app.use(cors({
-    origin: [
-        'http://localhost:5500',
-        'http://127.0.0.1:5500'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-
-// Parse incoming request bodies
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Home route
 app.get('/', (req, res) => {
